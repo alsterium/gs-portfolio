@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import * as pc from 'playcanvas';
+import type { GSFile } from '@/types';
 
 interface UseSplatReturn {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
@@ -23,7 +24,7 @@ const DEFAULT_CONTROLS: CameraControls = {
   maxDistance: 50,
 };
 
-export function useSplat(url: string): UseSplatReturn {
+export function useSplat(url: string, fileInfo?: GSFile): UseSplatReturn {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const appRef = useRef<pc.Application | null>(null);
   const cameraRef = useRef<pc.Entity | null>(null);
@@ -46,8 +47,16 @@ export function useSplat(url: string): UseSplatReturn {
   });
 
   // ファイル形式の検証
-  const validateFileFormat = useCallback((fileUrl: string): boolean => {
+  const validateFileFormat = useCallback((fileUrl: string, fileInfo?: GSFile): boolean => {
     if (!fileUrl) return false;
+    
+    // ファイル情報がある場合は、ファイル名から拡張子を取得
+    if (fileInfo?.filename) {
+      const extension = fileInfo.filename.toLowerCase().split('.').pop();
+      return extension === 'splat' || extension === 'ply';
+    }
+    
+    // ファイル情報がない場合は、URLから拡張子を取得（従来の方法）
     const extension = fileUrl.toLowerCase().split('.').pop();
     return extension === 'splat' || extension === 'ply';
   }, []);
@@ -228,25 +237,77 @@ export function useSplat(url: string): UseSplatReturn {
   }, [updateCameraPosition]);
 
   // PlayCanvasアプリの初期化
-  const initializeApp = useCallback(() => {
-    // テスト環境では仮想的なcanvas要素を作成
-    let canvas = canvasRef.current;
+  const initializeApp = useCallback(async () => {
+    // canvasの存在確認
+    const canvas = canvasRef.current;
     if (!canvas) {
-      canvas = document.createElement('canvas');
-      canvas.width = 800;
-      canvas.height = 600;
+      console.error('Canvas element not found');
+      return null;
     }
 
+    // canvasサイズの設定（iOS対応）
+    const maxCanvasSize = 4096; // iOSの制限を考慮
+    const rect = canvas.getBoundingClientRect();
+    const width = Math.min(rect.width || 800, maxCanvasSize);
+    const height = Math.min(rect.height || 600, maxCanvasSize);
+    
+    canvas.width = width;
+    canvas.height = height;
+
+    console.log('Initializing PlayCanvas with canvas size:', { width, height });
+
     try {
+      // WebGLコンテキストの確認
+      const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+      if (!gl) {
+        console.error('WebGL not supported');
+        return null;
+      }
+
+      console.log('WebGL context created successfully');
+
+      // PlayCanvasアプリケーションの作成
       const app = new pc.Application(canvas, {
         mouse: new pc.Mouse(canvas),
         touch: new pc.TouchDevice(canvas),
         keyboard: new pc.Keyboard(window),
+        graphicsDeviceOptions: {
+          antialias: true,
+          alpha: false,
+          preserveDrawingBuffer: false,
+          preferLowPowerToHighPerformance: false,
+        },
       });
 
+      console.log('PlayCanvas Application created');
+
       // アプリケーション設定
-      app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
-      app.setCanvasResolution(pc.RESOLUTION_AUTO);
+      app.setCanvasFillMode(pc.FILLMODE_NONE);
+      app.setCanvasResolution(pc.RESOLUTION_FIXED);
+      app.resizeCanvas(width, height);
+
+      console.log('Canvas settings applied');
+
+      // アプリケーションの開始（エンティティ作成前に必要）
+      app.start();
+
+      console.log('PlayCanvas Application started');
+
+      // scene.rootの準備を待つ
+      let attempts = 0;
+      const maxAttempts = 50; // 2.5秒間待つ
+      while ((!app.scene || !app.scene.root) && attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        attempts++;
+        console.log(`Waiting for scene root... (${attempts}/${maxAttempts})`);
+      }
+
+      if (!app.scene || !app.scene.root) {
+        console.error('PlayCanvas scene or scene.root is not available after waiting');
+        return null;
+      }
+
+      console.log('Scene root confirmed');
 
       // カメラエンティティの作成
       const camera = new pc.Entity('camera');
@@ -260,6 +321,8 @@ export function useSplat(url: string): UseSplatReturn {
       cameraRef.current = camera;
       updateCameraPosition();
       app.scene.root.addChild(camera);
+
+      console.log('Camera created and added to scene');
 
       // ライトエンティティの作成
       const light = new pc.Entity('light');
@@ -281,7 +344,9 @@ export function useSplat(url: string): UseSplatReturn {
       ambientLight.setPosition(0, 10, 0);
       app.scene.root.addChild(ambientLight);
 
-      app.start();
+      console.log('Lights created and added to scene');
+
+      console.log('PlayCanvas Application initialized successfully');
 
       // カメラコントロールの設定
       if (canvas && canvas instanceof HTMLCanvasElement) {
@@ -291,39 +356,63 @@ export function useSplat(url: string): UseSplatReturn {
       return app;
     } catch (error) {
       console.error('PlayCanvas initialization failed:', error);
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        canvasSize: { width: canvas.width, height: canvas.height },
+        userAgent: navigator.userAgent,
+      });
       return null;
     }
   }, [updateCameraPosition, setupCameraControls]);
 
   // Splatファイルの読み込み
   const loadSplatFile = useCallback((app: pc.Application, fileUrl: string) => {
-    app.assets.loadFromUrl(fileUrl, 'gsplat', (err: string | null, asset: any) => {
-      if (err) {
-        setError(err);
+    console.log('Loading splat file from:', fileUrl);
+
+    // 現在はGaussian Splattingローダーが利用できないため、プレースホルダーを表示
+    try {
+      // scene.rootの存在確認
+      if (!app.scene || !app.scene.root) {
+        console.error('Scene root not available for placeholder creation');
+        setError('3D scene initialization failed');
         setLoading(false);
         return;
       }
 
-      try {
-        // Splatエンティティの作成
-        const splatEntity = asset.resource.instantiate();
-        splatEntity.setPosition(0, 0, 0);
-        app.scene.root.addChild(splatEntity);
+      // プレースホルダーとして立方体を作成
+      const material = new pc.StandardMaterial();
+      material.diffuse = new pc.Color(0.7, 0.7, 0.9);
+      material.metalness = 0.1;
+      material.gloss = 0.8;
+      material.update();
 
-        // モデルのバウンディングボックスに基づいてカメラ距離を調整
-        const aabb = splatEntity.aabb;
-        if (aabb) {
-          const size = aabb.halfExtents.length();
-          cameraStateRef.current.distance = size * 2;
-          updateCameraPosition();
-        }
+      const box = new pc.Entity('placeholder-box');
+      box.addComponent('render', {
+        type: 'box',
+        material: material,
+      });
 
-        setLoading(false);
-      } catch (instantiateError) {
-        setError(instantiateError instanceof Error ? instantiateError.message : 'Failed to instantiate splat model');
-        setLoading(false);
-      }
-    });
+      box.setPosition(0, 0, 0);
+      box.setLocalScale(2, 2, 2);
+      app.scene.root.addChild(box);
+
+      console.log('Placeholder box created and added to scene');
+
+      // カメラ距離の調整
+      cameraStateRef.current.distance = 5;
+      updateCameraPosition();
+
+      setLoading(false);
+      
+      // 実際のGaussian Splattingファイルの読み込みは今後実装予定
+      console.warn('Gaussian Splatting loader not yet implemented. Showing placeholder.');
+      
+    } catch (instantiateError) {
+      console.error('Failed to create placeholder:', instantiateError);
+      setError(instantiateError instanceof Error ? instantiateError.message : 'Failed to create 3D content');
+      setLoading(false);
+    }
   }, [updateCameraPosition]);
 
   useEffect(() => {
@@ -338,37 +427,76 @@ export function useSplat(url: string): UseSplatReturn {
       return;
     }
 
-    if (!validateFileFormat(url)) {
+    if (!validateFileFormat(url, fileInfo)) {
       setError('Unsupported file format. Only .splat and .ply files are supported.');
       setLoading(false);
       return;
     }
 
-    // PlayCanvasアプリの初期化を遅延実行
-    const initTimer = setTimeout(() => {
-      const app = initializeApp();
-      if (!app) {
+    // canvas要素の準備を待つ関数
+    const waitForCanvas = () => {
+      return new Promise<void>((resolve, reject) => {
+        let attempts = 0;
+        const maxAttempts = 100; // 5秒間待つ（50ms × 100回）
+        
+        const checkCanvas = () => {
+          attempts++;
+          
+          if (canvasRef.current) {
+            console.log('Canvas element found, proceeding with initialization');
+            resolve();
+          } else if (attempts >= maxAttempts) {
+            console.error('Canvas element not found after maximum attempts');
+            reject(new Error('Canvas element not found'));
+          } else {
+            console.log(`Canvas element not ready, retrying... (${attempts}/${maxAttempts})`);
+            setTimeout(checkCanvas, 50);
+          }
+        };
+        checkCanvas();
+      });
+    };
+
+    // PlayCanvasアプリの初期化
+    const initializePlayCanvas = async () => {
+      try {
+        // canvas要素の準備を待つ
+        await waitForCanvas();
+        
+        console.log('Starting PlayCanvas initialization...');
+        
+        const app = await initializeApp();
+        if (!app) {
+          console.error('PlayCanvas initialization returned null');
+          setError('Failed to initialize PlayCanvas application');
+          setLoading(false);
+          return;
+        }
+
+        console.log('PlayCanvas app initialized successfully');
+        appRef.current = app;
+
+        // Splatファイルの読み込み
+        loadSplatFile(app, url);
+      } catch (error) {
+        console.error('Error during PlayCanvas initialization:', error);
         setError('Failed to initialize PlayCanvas application');
         setLoading(false);
-        return;
       }
+    };
 
-      appRef.current = app;
-
-      // Splatファイルの読み込み
-      loadSplatFile(app, url);
-    }, 0);
+    // 初期化を開始
+    initializePlayCanvas();
 
     // クリーンアップ関数
     return () => {
-      clearTimeout(initTimer);
       if (appRef.current) {
         appRef.current.destroy();
         appRef.current = null;
       }
       cameraRef.current = null;
     };
-  }, [url, validateFileFormat, initializeApp, loadSplatFile]);
+  }, [url, fileInfo, validateFileFormat, initializeApp, loadSplatFile]);
 
   return {
     canvasRef,

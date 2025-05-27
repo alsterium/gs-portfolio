@@ -1,83 +1,100 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { GSViewer } from './GSViewer';
-import { useSplat } from '../../lib/hooks/useSplat';
+import type { GSFile } from '@/types';
 
-// useSplat hookのモック
-vi.mock('../../lib/hooks/useSplat', () => ({
-  useSplat: vi.fn(),
+const mockUseApp = vi.fn();
+
+// PlayCanvas Reactのモック
+vi.mock('@playcanvas/react', () => ({
+  Application: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="playcanvas-application">{children}</div>
+  ),
+  Entity: ({ children, name }: { children?: React.ReactNode; name: string }) => (
+    <div data-testid={`entity-${name}`}>{children}</div>
+  ),
 }));
 
-const mockUseSplat = vi.mocked(useSplat);
+vi.mock('@playcanvas/react/components', () => ({
+  Render: ({ type }: { type: string }) => <div data-testid={`render-${type}`} />,
+  Camera: () => <div data-testid="camera" />,
+  Light: ({ type }: { type: string }) => <div data-testid={`light-${type}`} />,
+}));
+
+vi.mock('@playcanvas/react/hooks', () => ({
+  useApp: mockUseApp,
+}));
 
 describe('GSViewer', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // デフォルトでアプリが利用可能な状態にする
+    mockUseApp.mockReturnValue({ scene: { root: {} } });
   });
 
-  it('ローディング状態を表示する', () => {
-    mockUseSplat.mockReturnValue({
-      canvasRef: { current: null },
-      loading: true,
-      error: null,
-    });
-
+  it('PlayCanvasアプリケーションが正常に表示される', () => {
     render(<GSViewer fileUrl="test-file.splat" />);
     
-    expect(screen.getByText('3Dモデルを読み込み中...')).toBeInTheDocument();
-  });
-
-  it('エラー状態を表示する', () => {
-    mockUseSplat.mockReturnValue({
-      canvasRef: { current: null },
-      loading: false,
-      error: 'ファイルの読み込みに失敗しました',
-    });
-
-    render(<GSViewer fileUrl="invalid-file.splat" />);
-    
-    expect(screen.getByText('3Dモデルの読み込みに失敗しました')).toBeInTheDocument();
-    expect(screen.getByText('ファイルの読み込みに失敗しました')).toBeInTheDocument();
-  });
-
-  it('PlayCanvasアプリが正常に表示される', () => {
-    const mockCanvas = document.createElement('canvas');
-    mockUseSplat.mockReturnValue({
-      canvasRef: { current: mockCanvas },
-      loading: false,
-      error: null,
-    });
-
-    render(<GSViewer fileUrl="test-file.splat" />);
-    
-    expect(screen.getByRole('application')).toBeInTheDocument();
-    expect(screen.getByLabelText('3D Gaussian Splattingビューアー')).toBeInTheDocument();
+    expect(screen.getByTestId('playcanvas-application')).toBeInTheDocument();
+    expect(screen.getByTestId('entity-camera')).toBeInTheDocument();
+    expect(screen.getByTestId('entity-directional-light')).toBeInTheDocument();
+    expect(screen.getByTestId('entity-ambient-light')).toBeInTheDocument();
+    expect(screen.getByTestId('entity-placeholder-box')).toBeInTheDocument();
   });
 
   it('カスタムクラス名が適用される', () => {
-    mockUseSplat.mockReturnValue({
-      canvasRef: { current: null },
-      loading: false,
-      error: null,
-    });
-
     render(<GSViewer fileUrl="test-file.splat" className="custom-viewer" />);
     
     const container = screen.getByTestId('gs-viewer');
     expect(container).toHaveClass('custom-viewer');
   });
 
-  it('ファイルURLが変更されたときにuseSplatが呼び出される', () => {
-    mockUseSplat.mockReturnValue({
-      canvasRef: { current: null },
-      loading: false,
-      error: null,
-    });
+  it('初期状態でローディングが表示される', () => {
+    // useAppがnullを返すようにモック（アプリ初期化前の状態）
+    mockUseApp.mockReturnValue(null);
+    
+    render(<GSViewer fileUrl="test-file.splat" />);
+    
+    expect(screen.getByText('3Dモデルを読み込み中...')).toBeInTheDocument();
+  });
 
-    const { rerender } = render(<GSViewer fileUrl="file1.splat" />);
-    expect(mockUseSplat).toHaveBeenCalledWith('file1.splat');
+  it('ファイル情報が渡される', () => {
+    const mockFileInfo: GSFile = {
+      id: 1,
+      filename: 'test.splat',
+      display_name: 'Test File',
+      file_size: 1024,
+      file_path: 'files/test.splat',
+      mime_type: 'application/octet-stream',
+      upload_date: '2024-01-01T00:00:00Z',
+      updated_date: '2024-01-01T00:00:00Z',
+      is_active: true,
+    };
 
-    rerender(<GSViewer fileUrl="file2.splat" />);
-    expect(mockUseSplat).toHaveBeenCalledWith('file2.splat');
+    render(<GSViewer fileUrl="file1.splat" fileInfo={mockFileInfo} />);
+    
+    expect(screen.getByTestId('gs-viewer')).toBeInTheDocument();
+    expect(screen.getByText('ファイル: file1.splat')).toBeInTheDocument();
+  });
+
+  it('PlayCanvas Reactコンポーネントが正しく配置される', () => {
+    render(<GSViewer fileUrl="test-file.splat" />);
+    
+    // カメラコンポーネント
+    expect(screen.getByTestId('camera')).toBeInTheDocument();
+    
+    // ライトコンポーネント
+    expect(screen.getByTestId('light-directional')).toBeInTheDocument();
+    expect(screen.getByTestId('light-omni')).toBeInTheDocument();
+    
+    // レンダーコンポーネント（プレースホルダーボックス）
+    expect(screen.getByTestId('render-box')).toBeInTheDocument();
+  });
+
+  it('操作説明が表示される', () => {
+    render(<GSViewer fileUrl="test-file.splat" />);
+    
+    expect(screen.getByText('PlayCanvas Reactを使用したGaussian Splattingビューアー')).toBeInTheDocument();
+    expect(screen.getByText('操作方法: 左クリック+ドラッグで回転 | 右クリック+ドラッグでパン | ホイールでズーム')).toBeInTheDocument();
   });
 }); 

@@ -78,6 +78,7 @@ export function FileDetailPage() {
         <div className="lg:col-span-2">
           <GSViewer 
             fileUrl={`/api/gs-files/${file.id}/file`}
+            fileInfo={file}
             className="w-full"
           />
         </div>
