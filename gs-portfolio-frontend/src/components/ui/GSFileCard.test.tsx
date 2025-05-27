@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { BrowserRouter } from 'react-router';
+import { BrowserRouter, MemoryRouter } from 'react-router';
 import { GSFileCard } from './GSFileCard';
 import type { GSFile } from '@/types';
 import userEvent from '@testing-library/user-event';
@@ -98,6 +98,42 @@ describe('GSFileCard', () => {
     const link = container.querySelector('a');
     expect(link).toHaveClass('custom-class');
   });
+
+  it('モダンなカードデザインが適用される', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <GSFileCard file={mockFile} />
+      </MemoryRouter>
+    );
+    
+    const card = container.querySelector('[data-testid="gs-file-card"]');
+    expect(card).toHaveClass('rounded-xl');
+    expect(card).toHaveClass('transition-all');
+    expect(card).toHaveClass('duration-300');
+  });
+
+  it('ホバー効果が適用される', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <GSFileCard file={mockFile} />
+      </MemoryRouter>
+    );
+    
+    const card = container.querySelector('[data-testid="gs-file-card"]');
+    expect(card).toHaveClass('hover:scale-105');
+    expect(card).toHaveClass('hover:shadow-xl');
+  });
+
+  it('アニメーション効果が適用される', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <GSFileCard file={mockFile} />
+      </MemoryRouter>
+    );
+    
+    const card = container.querySelector('[data-testid="gs-file-card"]');
+    expect(card).toHaveClass('animate-fade-in');
+  });
 });
 
 describe('GSFileCard スタイリング', () => {
@@ -124,19 +160,18 @@ describe('GSFileCard スタイリング', () => {
       is_active: true
     };
 
-    renderWithRouter(<GSFileCard file={mockFile} />);
+    const { container } = renderWithRouter(<GSFileCard file={mockFile} />);
     
     const cardElement = screen.getByRole('link');
+    const modernCard = container.querySelector('[data-testid="gs-file-card"]');
     
     // 統一されたカードスタイルが適用されている
     expect(cardElement).toHaveClass('group');
     expect(cardElement).toHaveClass('block');
-    expect(cardElement).toHaveClass('rounded-lg');
-    expect(cardElement).toHaveClass('border');
-    expect(cardElement).toHaveClass('bg-white');
-    expect(cardElement).toHaveClass('shadow-sm');
-    expect(cardElement).toHaveClass('transition-all');
-    expect(cardElement).toHaveClass('hover:shadow-md');
+    expect(modernCard).toHaveClass('rounded-xl');
+    expect(modernCard).toHaveClass('border');
+    expect(modernCard).toHaveClass('transition-all');
+    expect(modernCard).toHaveClass('duration-300');
   });
 
   it('GSカラーパレットが適用されている', () => {
@@ -201,12 +236,12 @@ describe('GSFileCard スタイリング', () => {
       is_active: true
     };
 
-    renderWithRouter(<GSFileCard file={mockFile} />);
+    const { container } = renderWithRouter(<GSFileCard file={mockFile} />);
     
-    const cardElement = screen.getByRole('link');
+    const modernCard = container.querySelector('[data-testid="gs-file-card"]');
     
-    // レスポンシブパディングが適用されている
-    expect(cardElement).toHaveClass('p-4', 'sm:p-6');
+    // ModernCardのパディングが適用されている
+    expect(modernCard).toHaveClass('p-6'); // medium size default
   });
 });
 
@@ -290,14 +325,14 @@ describe('GSFileCard アクセシビリティ', () => {
       is_active: true
     };
 
-    renderWithRouter(<GSFileCard file={mockFile} />);
+    const { container } = renderWithRouter(<GSFileCard file={mockFile} />);
     
-    const cardLink = screen.getByRole('link');
+    const modernCard = container.querySelector('[data-testid="gs-file-card"]');
     
-    // フォーカス可視化のスタイルが適用されている
-    expect(cardLink).toHaveClass('focus-visible:outline-none');
-    expect(cardLink).toHaveClass('focus-visible:ring-2');
-    expect(cardLink).toHaveClass('focus-visible:ring-gs-primary');
+    // ModernCardのフォーカス可視化のスタイルが適用されている
+    expect(modernCard).toHaveClass('focus-visible:outline-none');
+    expect(modernCard).toHaveClass('focus-visible:ring-2');
+    expect(modernCard).toHaveClass('focus-visible:ring-gs-primary');
   });
 
   it('スクリーンリーダー向けの情報が適切に提供されている', () => {

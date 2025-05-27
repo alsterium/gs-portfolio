@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { Box, Calendar, HardDrive } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getGSFileThumbnailUrl } from '@/lib/gsFiles';
+import { ModernCard } from './ModernCard';
 import type { GSFile } from '@/types';
 
 interface GSFileCardProps {
@@ -39,15 +40,15 @@ export function GSFileCard({ file, className }: GSFileCardProps) {
     <Link
       to={`/view/${file.id}`}
       aria-label={file.display_name}
-      className={cn(
-        'group block rounded-lg border border-gs-neutral-200 bg-white shadow-sm transition-all',
-        'hover:border-gs-primary/30 hover:shadow-md hover:shadow-gs-primary/10',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gs-primary focus-visible:ring-offset-2',
-        'p-4 sm:p-6',
-        'animate-fade-in',
-        className
-      )}
+      className={cn('group block', className)}
     >
+      <ModernCard 
+        variant="gradient"
+        hoverable
+        animated
+        data-testid="gs-file-card"
+        className="h-full"
+      >
       {/* サムネイル */}
       <div className="mb-4 aspect-video overflow-hidden rounded-lg bg-gs-neutral-100">
         {file.thumbnail_path ? (
@@ -90,6 +91,7 @@ export function GSFileCard({ file, className }: GSFileCardProps) {
           </div>
         </div>
       </div>
+      </ModernCard>
     </Link>
   );
 } 

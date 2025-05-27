@@ -7,14 +7,21 @@ export interface HeaderProps {
 export function Header({ className }: HeaderProps) {
   return (
     <header className={cn(
-      "border-b border-gs-neutral-200 bg-white shadow-sm",
-      "transition-shadow duration-200",
+      "bg-gradient-to-r from-gs-primary/10 via-white to-gs-secondary/10",
+      "border-b border-gs-neutral-200/50 backdrop-blur-sm",
+      "shadow-sm shadow-gs-primary/5",
+      "transition-all duration-300",
       className
     )}>
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold text-gs-primary transition-colors hover:text-gs-secondary">
+            <h1 className={cn(
+              "text-xl font-bold bg-gradient-to-r from-gs-primary to-gs-secondary",
+              "bg-clip-text text-transparent",
+              "transition-all duration-300 hover:scale-105",
+              "cursor-default"
+            )}>
               GS Portfolio
             </h1>
           </div>
@@ -22,7 +29,13 @@ export function Header({ className }: HeaderProps) {
           <nav role="navigation" className="flex items-center space-x-4">
             <a 
               href="/" 
-              className="text-sm font-medium text-gs-neutral-700 transition-colors hover:text-gs-primary"
+              className={cn(
+                "text-sm font-medium text-gs-neutral-700",
+                "transition-all duration-200",
+                "hover:text-gs-primary hover:scale-105",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gs-primary focus-visible:ring-offset-2",
+                "px-3 py-2 rounded-md"
+              )}
             >
               Home
             </a>
