@@ -11,8 +11,13 @@ export class FileStorage {
     });
   }
 
-  // ファイル取得
+  // ファイル取得（メタデータのみ）
   async getFile(key: string): Promise<R2Object | null> {
+    return await this.r2.head(key);
+  }
+
+  // ファイル取得（ボディ付き）
+  async getFileWithBody(key: string): Promise<R2ObjectBody | null> {
     return await this.r2.get(key);
   }
 

@@ -93,7 +93,7 @@ publicRoutes.get('/gs-files/:id/file', async (c) => {
     }
 
     const storage = new FileStorage(c.env.R2);
-    const fileObject = await storage.getFile(file.file_path);
+    const fileObject = await storage.getFileWithBody(file.file_path);
 
     if (!fileObject) {
       return c.json<ApiResponse>({
@@ -102,12 +102,16 @@ publicRoutes.get('/gs-files/:id/file', async (c) => {
       }, 404);
     }
 
-    // ファイルを返す（R2ObjectのbodyはReadableStreamまたはnull）
+    // ファイルを返す（R2ObjectBodyのbodyはReadableStream）
     return new Response(fileObject.body, {
       headers: {
         'Content-Type': file.mime_type,
-        'Content-Disposition': `attachment; filename="${file.filename}"`,
-        'Content-Length': file.file_size.toString()
+        'Content-Disposition': `inline; filename="${file.filename}"`,
+        'Content-Length': file.file_size.toString(),
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Cache-Control': 'public, max-age=3600'
       }
     });
   } catch (error) {
@@ -149,7 +153,7 @@ publicRoutes.get('/gs-files/:id/thumbnail', async (c) => {
     }
 
     const storage = new FileStorage(c.env.R2);
-    const thumbnailObject = await storage.getFile(file.thumbnail_path);
+    const thumbnailObject = await storage.getFileWithBody(file.thumbnail_path);
 
     if (!thumbnailObject) {
       return c.json<ApiResponse>({
@@ -158,11 +162,14 @@ publicRoutes.get('/gs-files/:id/thumbnail', async (c) => {
       }, 404);
     }
 
-    // サムネイルを返す（R2ObjectのbodyはReadableStreamまたはnull）
+    // サムネイルを返す（R2ObjectBodyのbodyはReadableStream）
     return new Response(thumbnailObject.body, {
       headers: {
         'Content-Type': 'image/jpeg', // デフォルトでJPEG
-        'Cache-Control': 'public, max-age=3600' // 1時間キャッシュ
+        'Cache-Control': 'public, max-age=3600', // 1時間キャッシュ
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
       }
     });
   } catch (error) {

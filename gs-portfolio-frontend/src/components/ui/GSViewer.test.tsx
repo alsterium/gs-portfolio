@@ -3,8 +3,6 @@ import { render, screen } from '@testing-library/react';
 import { GSViewer } from './GSViewer';
 import type { GSFile } from '@/types';
 
-const mockUseApp = vi.fn();
-
 // PlayCanvas Reactのモック
 vi.mock('@playcanvas/react', () => ({
   Application: ({ children }: { children: React.ReactNode }) => (
@@ -19,10 +17,15 @@ vi.mock('@playcanvas/react/components', () => ({
   Render: ({ type }: { type: string }) => <div data-testid={`render-${type}`} />,
   Camera: () => <div data-testid="camera" />,
   Light: ({ type }: { type: string }) => <div data-testid={`light-${type}`} />,
+  GSplat: ({ asset }: { asset: any }) => <div data-testid="gsplat" data-asset={asset ? 'loaded' : 'null'} />,
 }));
+
+const mockUseApp = vi.fn();
+const mockUseSplat = vi.fn();
 
 vi.mock('@playcanvas/react/hooks', () => ({
   useApp: mockUseApp,
+  useSplat: mockUseSplat,
 }));
 
 describe('GSViewer', () => {
@@ -30,6 +33,8 @@ describe('GSViewer', () => {
     vi.clearAllMocks();
     // デフォルトでアプリが利用可能な状態にする
     mockUseApp.mockReturnValue({ scene: { root: {} } });
+    // デフォルトでSplatアセットは読み込み中
+    mockUseSplat.mockReturnValue({ asset: null });
   });
 
   it('PlayCanvasアプリケーションが正常に表示される', () => {
@@ -39,6 +44,7 @@ describe('GSViewer', () => {
     expect(screen.getByTestId('entity-camera')).toBeInTheDocument();
     expect(screen.getByTestId('entity-directional-light')).toBeInTheDocument();
     expect(screen.getByTestId('entity-ambient-light')).toBeInTheDocument();
+    // アセット読み込み中はプレースホルダーが表示される
     expect(screen.getByTestId('entity-placeholder-box')).toBeInTheDocument();
   });
 
@@ -89,6 +95,20 @@ describe('GSViewer', () => {
     
     // レンダーコンポーネント（プレースホルダーボックス）
     expect(screen.getByTestId('render-box')).toBeInTheDocument();
+  });
+
+  it('Splatアセットが読み込まれたときにGSplatコンポーネントが表示される', () => {
+    // Splatアセットが読み込まれた状態をモック
+    mockUseSplat.mockReturnValue({ asset: { id: 'test-asset' } });
+    
+    render(<GSViewer fileUrl="test-file.splat" />);
+    
+    // GSplatコンポーネントが表示される
+    expect(screen.getByTestId('gsplat')).toBeInTheDocument();
+    expect(screen.getByTestId('gsplat')).toHaveAttribute('data-asset', 'loaded');
+    
+    // プレースホルダーは表示されない
+    expect(screen.queryByTestId('entity-placeholder-box')).not.toBeInTheDocument();
   });
 
   it('操作説明が表示される', () => {

@@ -1,6 +1,6 @@
 import { Application, Entity } from '@playcanvas/react';
-import { Render, Camera, Light } from '@playcanvas/react/components';
-import { useApp } from '@playcanvas/react/hooks';
+import { Render, Camera, Light, GSplat } from '@playcanvas/react/components';
+import { useApp, useSplat } from '@playcanvas/react/hooks';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ErrorMessage } from './ErrorMessage';
 import type { GSFile } from '@/types';
@@ -20,6 +20,8 @@ function GSScene({ fileUrl, fileInfo, onReady, onError }: {
   onError: (error: string) => void;
 }) {
   const app = useApp();
+  const splatAsset = useSplat(fileUrl);
+  const [splatError, setSplatError] = useState<string | null>(null);
 
   // ファイル形式の検証
   const validateFileFormat = useCallback((fileUrl: string, fileInfo?: GSFile): boolean => {
@@ -39,18 +41,38 @@ function GSScene({ fileUrl, fileInfo, onReady, onError }: {
   useEffect(() => {
     if (app) {
       console.log('PlayCanvas Application ready');
+      console.log('File URL:', fileUrl);
+      console.log('File Info:', fileInfo);
       
       // ファイル形式の検証
       if (!validateFileFormat(fileUrl, fileInfo)) {
-        onError('Unsupported file format. Only .splat and .ply files are supported.');
+        const errorMsg = 'Unsupported file format. Only .splat and .ply files are supported.';
+        console.error(errorMsg);
+        onError(errorMsg);
         return;
       }
 
-      // 実際のGaussian Splattingファイルの読み込みは今後実装予定
-      console.warn('Gaussian Splatting loader not yet implemented. Showing placeholder.');
-      onReady();
+      // Splat読み込み状態のログ
+      console.log('Splat Asset State:', {
+        asset: splatAsset?.asset ? 'loaded' : 'null',
+        error: splatAsset?.error || 'none',
+        loading: !splatAsset?.asset && !splatAsset?.error
+      });
+
+      // Splat読み込み完了のチェック
+      if (splatAsset?.asset) {
+        console.log('Gaussian Splat file loaded successfully');
+        setSplatError(null);
+        onReady();
+      } else if (splatAsset?.error) {
+        console.error('Splat loading error:', splatAsset.error);
+        setSplatError(`Failed to load Gaussian Splat file: ${splatAsset.error}`);
+        onError(`Failed to load Gaussian Splat file: ${splatAsset.error}`);
+      } else {
+        console.log('Loading Gaussian Splat file...');
+      }
     }
-  }, [app, fileUrl, fileInfo, validateFileFormat, onReady, onError]);
+  }, [app, fileUrl, fileInfo, splatAsset, validateFileFormat, onReady, onError]);
 
   return (
     <>
@@ -82,10 +104,19 @@ function GSScene({ fileUrl, fileInfo, onReady, onError }: {
         />
       </Entity>
 
-      {/* プレースホルダーボックス（Gaussian Splattingローダー実装まで） */}
-      <Entity name="placeholder-box" position={[0, 0, 0]} scale={[2, 2, 2]}>
-        <Render type="box" />
-      </Entity>
+                  {/* Gaussian Splattingファイル */}
+            {splatAsset?.asset && (
+              <Entity name="gsplat-model" position={[0, 0, 0]}>
+                <GSplat asset={splatAsset.asset} />
+              </Entity>
+            )}
+            
+            {/* プレースホルダー（アセット読み込み中） */}
+            {!splatAsset?.asset && (
+              <Entity name="placeholder-box" position={[0, 0, 0]} scale={[2, 2, 2]}>
+                <Render type="box" />
+              </Entity>
+            )}
     </>
   );
 }
