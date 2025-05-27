@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { Box, Calendar, HardDrive } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getGSFileThumbnailUrl } from '@/lib/gsFiles';
 import type { GSFile } from '@/types';
 
 interface GSFileCardProps {
@@ -40,10 +41,10 @@ export function GSFileCard({ file, className }: GSFileCardProps) {
     >
       {/* サムネイル */}
       <div className="mb-4 aspect-video overflow-hidden rounded-lg bg-gray-100">
-        {file.thumbnailPath ? (
+        {file.thumbnail_path ? (
           <img
-            src={file.thumbnailPath}
-            alt={`${file.displayName}のサムネイル`}
+            src={getGSFileThumbnailUrl(file.id)}
+            alt={`${file.display_name}のサムネイル`}
             className="h-full w-full object-cover transition-transform group-hover:scale-105"
           />
         ) : (
@@ -56,7 +57,7 @@ export function GSFileCard({ file, className }: GSFileCardProps) {
       {/* ファイル情報 */}
       <div className="space-y-2">
         <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600">
-          {file.displayName}
+          {file.display_name}
         </h3>
         
         {file.description && (
@@ -68,12 +69,12 @@ export function GSFileCard({ file, className }: GSFileCardProps) {
         <div className="flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center space-x-1">
             <HardDrive className="h-3 w-3" />
-            <span>{formatFileSize(file.fileSize)}</span>
+            <span>{formatFileSize(file.file_size)}</span>
           </div>
           
           <div className="flex items-center space-x-1">
             <Calendar className="h-3 w-3" />
-            <span>{formatDate(file.uploadDate)}</span>
+            <span>{formatDate(file.upload_date)}</span>
           </div>
         </div>
       </div>
