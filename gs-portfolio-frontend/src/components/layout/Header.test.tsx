@@ -3,10 +3,56 @@ import { describe, it, expect } from 'vitest'
 import { Header } from './Header'
 
 describe('Header', () => {
-  it('renders site title', () => {
+  it('ヘッダーが正しく表示される', () => {
     render(<Header />)
     
     expect(screen.getByText('GS Portfolio')).toBeInTheDocument()
+    expect(screen.getByText('Home')).toBeInTheDocument()
+  })
+
+  it('ナビゲーションリンクが正しく設定される', () => {
+    render(<Header />)
+    
+    const homeLink = screen.getByText('Home')
+    expect(homeLink).toHaveAttribute('href', '/')
+  })
+
+  it('カスタムクラス名が適用される', () => {
+    const { container } = render(<Header className="custom-header" />)
+    
+    const header = container.querySelector('header')
+    expect(header).toHaveClass('custom-header')
+  })
+
+  it('統一されたデザインシステムが適用されている', () => {
+    const { container } = render(<Header />)
+    
+    const header = container.querySelector('header')
+    
+    // GSカラーパレットとスタイリングが適用されている
+    expect(header).toHaveClass('border-b')
+    expect(header).toHaveClass('bg-white')
+    expect(header).toHaveClass('shadow-sm')
+  })
+
+  it('ブランドロゴのスタイリングが適用されている', () => {
+    render(<Header />)
+    
+    const brandTitle = screen.getByText('GS Portfolio')
+    
+    // GSカラーパレットが適用されている
+    expect(brandTitle).toHaveClass('text-gs-primary')
+    expect(brandTitle).toHaveClass('font-bold')
+  })
+
+  it('ナビゲーションリンクのホバー効果が適用されている', () => {
+    render(<Header />)
+    
+    const homeLink = screen.getByText('Home')
+    
+    // ホバー効果が適用されている
+    expect(homeLink).toHaveClass('hover:text-gs-primary')
+    expect(homeLink).toHaveClass('transition-colors')
   })
 
   it('has proper semantic structure', () => {
@@ -14,13 +60,6 @@ describe('Header', () => {
     
     const header = screen.getByRole('banner')
     expect(header).toBeInTheDocument()
-  })
-
-  it('applies correct styling', () => {
-    render(<Header />)
-    
-    const header = screen.getByRole('banner')
-    expect(header).toHaveClass('border-b', 'bg-background')
   })
 
   it('contains navigation elements', () => {

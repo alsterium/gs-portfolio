@@ -88,4 +88,30 @@ describe('Button', () => {
     expect(link).toBeInTheDocument()
     expect(link).toHaveAttribute('href', '/test')
   })
+
+  describe('デザインシステム統合', () => {
+    it('統一されたトランジション効果が適用されている', () => {
+      render(<Button>Test Button</Button>)
+      
+      const button = screen.getByRole('button')
+      expect(button).toHaveClass('transition-colors')
+    })
+
+    it('フォーカス状態のスタイリングが適用されている', () => {
+      render(<Button>Test Button</Button>)
+      
+      const button = screen.getByRole('button')
+      expect(button).toHaveClass('focus-visible:outline-none')
+      expect(button).toHaveClass('focus-visible:ring-2')
+      expect(button).toHaveClass('focus-visible:ring-ring')
+    })
+
+    it('アクセシビリティ対応のスタイリングが適用されている', () => {
+      render(<Button disabled>Disabled Button</Button>)
+      
+      const button = screen.getByRole('button')
+      expect(button).toHaveClass('disabled:pointer-events-none')
+      expect(button).toHaveClass('disabled:opacity-50')
+    })
+  })
 }) 

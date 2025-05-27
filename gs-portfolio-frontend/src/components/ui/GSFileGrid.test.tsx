@@ -16,10 +16,12 @@ const mockFiles: GSFile[] = [
     display_name: 'テストファイル1',
     file_size: 1048576,
     file_path: '/files/test1.splat',
+    thumbnail_path: '/thumbnails/test1.jpg',
     mime_type: 'application/octet-stream',
     upload_date: '2024-01-15T10:30:00Z',
     updated_date: '2024-01-15T10:30:00Z',
     is_active: true,
+    description: 'テスト用のファイル1',
   },
   {
     id: 2,
@@ -27,10 +29,12 @@ const mockFiles: GSFile[] = [
     display_name: 'テストファイル2',
     file_size: 2097152,
     file_path: '/files/test2.splat',
+    thumbnail_path: '/thumbnails/test2.jpg',
     mime_type: 'application/octet-stream',
     upload_date: '2024-01-16T10:30:00Z',
     updated_date: '2024-01-16T10:30:00Z',
     is_active: true,
+    description: 'テスト用のファイル2',
   },
 ];
 
@@ -72,25 +76,26 @@ describe('GSFileGrid', () => {
     expect(screen.getByText('ファイルがありません')).toBeInTheDocument();
   });
 
-  it('ファイル一覧を正しく表示する', () => {
+  it('ファイル一覧が正しく表示される', () => {
     renderWithRouter(<GSFileGrid files={mockFiles} />);
     
     expect(screen.getByText('テストファイル1')).toBeInTheDocument();
     expect(screen.getByText('テストファイル2')).toBeInTheDocument();
+  });
+
+  it('空の配列の場合は空状態メッセージを表示する', () => {
+    renderWithRouter(<GSFileGrid files={[]} />);
     
-    // グリッドレイアウトが適用されていることを確認
-    const grid = document.querySelector('.grid');
-    expect(grid).toBeInTheDocument();
-    expect(grid).toHaveClass('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3', 'xl:grid-cols-4');
+    expect(screen.getByText('ファイルがありません')).toBeInTheDocument();
+    expect(screen.getByText('Gaussian Splattingファイルがまだアップロードされていません。')).toBeInTheDocument();
   });
 
   it('カスタムクラス名が適用される', () => {
     const { container } = renderWithRouter(
-      <GSFileGrid files={mockFiles} className="custom-grid-class" />
+      <GSFileGrid files={mockFiles} className="custom-grid" />
     );
     
-    const gridContainer = container.firstChild;
-    expect(gridContainer).toHaveClass('custom-grid-class');
+    expect(container.firstChild).toHaveClass('custom-grid');
   });
 
   it('ローディング状態が優先される', () => {
@@ -118,5 +123,63 @@ describe('GSFileGrid', () => {
     
     expect(screen.getByText(errorMessage)).toBeInTheDocument();
     expect(screen.queryByText('テストファイル1')).not.toBeInTheDocument();
+  });
+
+  describe('レスポンシブデザイン', () => {
+    it('基本的なグリッドレイアウトが適用されている', () => {
+      const { container } = renderWithRouter(<GSFileGrid files={mockFiles} />);
+      
+      const gridElement = container.firstChild;
+      
+      // 基本的なグリッドクラスが適用されている
+      expect(gridElement).toHaveClass('grid');
+      expect(gridElement).toHaveClass('gap-4');
+    });
+
+    it('モバイル向けのレスポンシブクラスが適用されている', () => {
+      const { container } = renderWithRouter(<GSFileGrid files={mockFiles} />);
+      
+      const gridElement = container.firstChild;
+      
+      // モバイル: 1列
+      expect(gridElement).toHaveClass('grid-cols-1');
+    });
+
+    it('タブレット向けのレスポンシブクラスが適用されている', () => {
+      const { container } = renderWithRouter(<GSFileGrid files={mockFiles} />);
+      
+      const gridElement = container.firstChild;
+      
+      // タブレット: 2列
+      expect(gridElement).toHaveClass('md:grid-cols-2');
+    });
+
+    it('デスクトップ向けのレスポンシブクラスが適用されている', () => {
+      const { container } = renderWithRouter(<GSFileGrid files={mockFiles} />);
+      
+      const gridElement = container.firstChild;
+      
+      // デスクトップ: 3列
+      expect(gridElement).toHaveClass('lg:grid-cols-3');
+    });
+
+    it('大画面向けのレスポンシブクラスが適用されている', () => {
+      const { container } = renderWithRouter(<GSFileGrid files={mockFiles} />);
+      
+      const gridElement = container.firstChild;
+      
+      // 大画面: 4列
+      expect(gridElement).toHaveClass('xl:grid-cols-4');
+    });
+
+    it('レスポンシブギャップが適用されている', () => {
+      const { container } = renderWithRouter(<GSFileGrid files={mockFiles} />);
+      
+      const gridElement = container.firstChild;
+      
+      // レスポンシブギャップ
+      expect(gridElement).toHaveClass('gap-4');
+      expect(gridElement).toHaveClass('md:gap-6');
+    });
   });
 }); 

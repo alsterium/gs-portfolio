@@ -38,46 +38,54 @@ export function GSFileCard({ file, className }: GSFileCardProps) {
   return (
     <Link
       to={`/view/${file.id}`}
+      aria-label={file.display_name}
       className={cn(
-        'group block rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-blue-300 hover:shadow-md',
+        'group block rounded-lg border border-gs-neutral-200 bg-white shadow-sm transition-all',
+        'hover:border-gs-primary/30 hover:shadow-md hover:shadow-gs-primary/10',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gs-primary focus-visible:ring-offset-2',
+        'p-4 sm:p-6',
+        'animate-fade-in',
         className
       )}
     >
       {/* サムネイル */}
-      <div className="mb-4 aspect-video overflow-hidden rounded-lg bg-gray-100">
+      <div className="mb-4 aspect-video overflow-hidden rounded-lg bg-gs-neutral-100">
         {file.thumbnail_path ? (
           <img
             src={getGSFileThumbnailUrl(file.id)}
             alt={`${file.display_name}のサムネイル`}
-            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <Box className="h-12 w-12 text-gray-400" />
+            <Box 
+              className="h-12 w-12 text-gs-neutral-400 transition-colors group-hover:text-gs-primary" 
+              aria-hidden="true"
+            />
           </div>
         )}
       </div>
 
       {/* ファイル情報 */}
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600">
+        <h3 className="text-lg font-semibold text-gs-neutral-900 transition-colors group-hover:text-gs-primary">
           {file.display_name}
         </h3>
         
         {file.description && (
-          <p className="text-sm text-gray-600 line-clamp-2">
+          <p className="text-sm text-gs-neutral-600 line-clamp-2">
             {file.description}
           </p>
         )}
 
-        <div className="flex items-center justify-between text-xs text-gray-500">
+        <div className="flex items-center justify-between text-xs text-gs-neutral-500" aria-label="ファイル詳細情報">
           <div className="flex items-center space-x-1">
-            <HardDrive className="h-3 w-3" />
+            <HardDrive className="h-3 w-3" aria-hidden="true" />
             <span>{formatFileSize(file.file_size)}</span>
           </div>
           
           <div className="flex items-center space-x-1">
-            <Calendar className="h-3 w-3" />
+            <Calendar className="h-3 w-3" aria-hidden="true" />
             <span>{formatDate(file.upload_date)}</span>
           </div>
         </div>

@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { BrowserRouter } from 'react-router';
 import { GSFileCard } from './GSFileCard';
 import type { GSFile } from '@/types';
+import userEvent from '@testing-library/user-event';
 
 // gsFilesモジュールのモック
 vi.mock('@/lib/gsFiles', () => ({
@@ -96,5 +97,230 @@ describe('GSFileCard', () => {
     
     const link = container.querySelector('a');
     expect(link).toHaveClass('custom-class');
+  });
+});
+
+describe('GSFileCard スタイリング', () => {
+  const renderWithRouter = (component: React.ReactElement) => {
+    return render(
+      <BrowserRouter>
+        {component}
+      </BrowserRouter>
+    );
+  };
+
+  it('統一されたデザインシステムのクラスが適用されている', () => {
+    const mockFile: GSFile = {
+      id: 1,
+      filename: 'test.splat',
+      display_name: 'テストファイル',
+      description: 'テスト用の説明',
+      file_size: 1024,
+      file_path: 'test.splat',
+      thumbnail_path: undefined,
+      mime_type: 'application/octet-stream',
+      upload_date: '2024-01-01T00:00:00Z',
+      updated_date: '2024-01-01T00:00:00Z',
+      is_active: true
+    };
+
+    renderWithRouter(<GSFileCard file={mockFile} />);
+    
+    const cardElement = screen.getByRole('link');
+    
+    // 統一されたカードスタイルが適用されている
+    expect(cardElement).toHaveClass('group');
+    expect(cardElement).toHaveClass('block');
+    expect(cardElement).toHaveClass('rounded-lg');
+    expect(cardElement).toHaveClass('border');
+    expect(cardElement).toHaveClass('bg-white');
+    expect(cardElement).toHaveClass('shadow-sm');
+    expect(cardElement).toHaveClass('transition-all');
+    expect(cardElement).toHaveClass('hover:shadow-md');
+  });
+
+  it('GSカラーパレットが適用されている', () => {
+    const mockFile: GSFile = {
+      id: 1,
+      filename: 'test.splat',
+      display_name: 'テストファイル',
+      description: 'テスト用の説明',
+      file_size: 1024,
+      file_path: 'test.splat',
+      thumbnail_path: undefined,
+      mime_type: 'application/octet-stream',
+      upload_date: '2024-01-01T00:00:00Z',
+      updated_date: '2024-01-01T00:00:00Z',
+      is_active: true
+    };
+
+    renderWithRouter(<GSFileCard file={mockFile} />);
+    
+    const titleElement = screen.getByText('テストファイル');
+    
+    // GSカラーパレットのホバー効果が適用されている
+    expect(titleElement).toHaveClass('group-hover:text-gs-primary');
+  });
+
+  it('アニメーション効果が適用されている', () => {
+    const mockFile: GSFile = {
+      id: 1,
+      filename: 'test.splat',
+      display_name: 'テストファイル',
+      description: 'テスト用の説明',
+      file_size: 1024,
+      file_path: 'test.splat',
+      thumbnail_path: 'thumbnail.jpg',
+      mime_type: 'application/octet-stream',
+      upload_date: '2024-01-01T00:00:00Z',
+      updated_date: '2024-01-01T00:00:00Z',
+      is_active: true
+    };
+
+    renderWithRouter(<GSFileCard file={mockFile} />);
+    
+    const imageElement = screen.getByAltText('テストファイルのサムネイル');
+    
+    // スケールアニメーションが適用されている
+    expect(imageElement).toHaveClass('transition-transform');
+    expect(imageElement).toHaveClass('group-hover:scale-105');
+  });
+
+  it('レスポンシブデザインが適用されている', () => {
+    const mockFile: GSFile = {
+      id: 1,
+      filename: 'test.splat',
+      display_name: 'テストファイル',
+      description: 'テスト用の説明',
+      file_size: 1024,
+      file_path: 'test.splat',
+      thumbnail_path: undefined,
+      mime_type: 'application/octet-stream',
+      upload_date: '2024-01-01T00:00:00Z',
+      updated_date: '2024-01-01T00:00:00Z',
+      is_active: true
+    };
+
+    renderWithRouter(<GSFileCard file={mockFile} />);
+    
+    const cardElement = screen.getByRole('link');
+    
+    // レスポンシブパディングが適用されている
+    expect(cardElement).toHaveClass('p-4', 'sm:p-6');
+  });
+});
+
+describe('GSFileCard アクセシビリティ', () => {
+  const renderWithRouter = (component: React.ReactElement) => {
+    return render(
+      <BrowserRouter>
+        {component}
+      </BrowserRouter>
+    );
+  };
+
+  it('キーボードナビゲーションが正しく動作する', async () => {
+    const mockFile: GSFile = {
+      id: 1,
+      filename: 'test.splat',
+      display_name: 'テストファイル',
+      description: 'テスト用の説明',
+      file_size: 1024,
+      file_path: 'test.splat',
+      thumbnail_path: undefined,
+      mime_type: 'application/octet-stream',
+      upload_date: '2024-01-01T00:00:00Z',
+      updated_date: '2024-01-01T00:00:00Z',
+      is_active: true
+    };
+
+    const user = userEvent.setup();
+    renderWithRouter(<GSFileCard file={mockFile} />);
+    
+    const cardLink = screen.getByRole('link');
+    
+    // Tabキーでフォーカス可能
+    await user.tab();
+    expect(cardLink).toHaveFocus();
+    
+    // Enterキーで活性化可能
+    await user.keyboard('{Enter}');
+    // リンクの動作確認（実際のナビゲーションはテスト環境では発生しない）
+  });
+
+  it('適切なARIAラベルが設定されている', () => {
+    const mockFile: GSFile = {
+      id: 1,
+      filename: 'test.splat',
+      display_name: 'テストファイル',
+      description: 'テスト用の説明',
+      file_size: 1024,
+      file_path: 'test.splat',
+      thumbnail_path: 'thumbnail.jpg',
+      mime_type: 'application/octet-stream',
+      upload_date: '2024-01-01T00:00:00Z',
+      updated_date: '2024-01-01T00:00:00Z',
+      is_active: true
+    };
+
+    renderWithRouter(<GSFileCard file={mockFile} />);
+    
+    const cardLink = screen.getByRole('link');
+    
+    // アクセシブルな名前が設定されている
+    expect(cardLink).toHaveAccessibleName('テストファイル');
+    
+    // 画像に適切なalt属性が設定されている
+    const thumbnail = screen.getByAltText('テストファイルのサムネイル');
+    expect(thumbnail).toBeInTheDocument();
+  });
+
+  it('フォーカス状態のスタイリングが適用されている', () => {
+    const mockFile: GSFile = {
+      id: 1,
+      filename: 'test.splat',
+      display_name: 'テストファイル',
+      description: 'テスト用の説明',
+      file_size: 1024,
+      file_path: 'test.splat',
+      thumbnail_path: undefined,
+      mime_type: 'application/octet-stream',
+      upload_date: '2024-01-01T00:00:00Z',
+      updated_date: '2024-01-01T00:00:00Z',
+      is_active: true
+    };
+
+    renderWithRouter(<GSFileCard file={mockFile} />);
+    
+    const cardLink = screen.getByRole('link');
+    
+    // フォーカス可視化のスタイルが適用されている
+    expect(cardLink).toHaveClass('focus-visible:outline-none');
+    expect(cardLink).toHaveClass('focus-visible:ring-2');
+    expect(cardLink).toHaveClass('focus-visible:ring-gs-primary');
+  });
+
+  it('スクリーンリーダー向けの情報が適切に提供されている', () => {
+    const mockFile: GSFile = {
+      id: 1,
+      filename: 'test.splat',
+      display_name: 'テストファイル',
+      description: 'テスト用の説明',
+      file_size: 1024,
+      file_path: 'test.splat',
+      thumbnail_path: undefined,
+      mime_type: 'application/octet-stream',
+      upload_date: '2024-01-01T00:00:00Z',
+      updated_date: '2024-01-01T00:00:00Z',
+      is_active: true
+    };
+
+    renderWithRouter(<GSFileCard file={mockFile} />);
+    
+    // ファイル情報がスクリーンリーダーで読み上げ可能
+    expect(screen.getByText('テストファイル')).toBeInTheDocument();
+    expect(screen.getByText('テスト用の説明')).toBeInTheDocument();
+    expect(screen.getByText('1.0 KB')).toBeInTheDocument();
+    expect(screen.getByText('2024年1月1日')).toBeInTheDocument();
   });
 }); 
