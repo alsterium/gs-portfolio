@@ -200,7 +200,7 @@ export function FileUploadForm({ onSuccess, onError }: FileUploadFormProps) {
         setUploadProgress(prev => Math.min(prev + 10, 90));
       }, 200);
 
-      const response = await apiClient.post<{
+      const response = await apiClient.uploadFile<{
         success: boolean;
         error?: string;
       }>('/admin/gs-files', formDataToSend);
@@ -214,7 +214,9 @@ export function FileUploadForm({ onSuccess, onError }: FileUploadFormProps) {
           displayName: '',
           description: '',
           gsFile: null,
+          gsFiles: [],
           thumbnail: null,
+          batchMode: false,
         });
         setUploadProgress(0);
         onSuccess?.();

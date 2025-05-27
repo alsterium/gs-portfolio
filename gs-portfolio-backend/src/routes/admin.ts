@@ -39,8 +39,8 @@ adminRoutes.post('/login', async (c) => {
     await sessionRepo.create(user.id, sessionToken, expiresAt);
     await userRepo.updateLastLogin(user.id);
 
-    // セキュアCookie設定
-    const cookie = createSecureCookie('session', sessionToken);
+    // セキュアCookie設定（開発環境ではSecureフラグなし）
+    const cookie = createSecureCookie('session', sessionToken, 86400, false);
     
     return c.json<ApiResponse<{ user: Omit<AdminUser, 'password_hash'> }>>({
       success: true,
@@ -75,8 +75,8 @@ adminRoutes.post('/logout', authMiddleware, async (c) => {
     const sessionRepo = new AdminSessionRepository(c.env.DB);
     await sessionRepo.delete(session.session_token);
 
-    // Cookieクリア
-    const cookie = clearCookie('session');
+    // Cookieクリア（開発環境ではSecureフラグなし）
+    const cookie = clearCookie('session', false);
     
     return c.json<ApiResponse>({
       success: true,

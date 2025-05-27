@@ -77,14 +77,11 @@ export function useAuth(): UseAuthReturn {
     try {
       setState(prev => ({ ...prev, loading: true }));
 
-      const response = await apiClient.post<{
-        success: boolean;
-        data?: { user: AuthUser };
-        error?: string;
-      }>('/admin/login', credentials);
+      // APIクライアントは成功時にdataプロパティのみを返すため、直接userを取得
+      const data = await apiClient.post<{ user: AuthUser }>('/admin/login', credentials);
 
-      if (response.success && response.data?.user) {
-        const user = response.data.user;
+      if (data?.user) {
+        const user = data.user;
         setState({
           user,
           isAuthenticated: true,
@@ -96,12 +93,20 @@ export function useAuth(): UseAuthReturn {
         setState(prev => ({ ...prev, loading: false }));
         return { 
           success: false, 
-          error: response.error || 'ログインに失敗しました' 
+          error: 'ログインに失敗しました' 
         };
       }
     } catch (error) {
       setState(prev => ({ ...prev, loading: false }));
       console.error('ログインエラー:', error);
+      
+      if (error instanceof Error) {
+        return { 
+          success: false, 
+          error: error.message 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'ネットワークエラーが発生しました' 
@@ -134,18 +139,16 @@ export function useAuth(): UseAuthReturn {
     // ローカルストレージから状態を復元
     const restored = restoreAuthState();
     if (!restored) {
+      setState(prev => ({ ...prev, loading: false }));
       return;
     }
 
+    // ローカル状態が復元された場合、バックグラウンドでサーバー確認
     try {
-      // サーバーサイドで認証状態を確認
-      const response = await apiClient.get<{
-        success: boolean;
-        data?: { user: AuthUser };
-      }>('/admin/me');
+      const data = await apiClient.get<{ user: AuthUser }>('/admin/me');
 
-      if (response.success && response.data?.user) {
-        const user = response.data.user;
+      if (data?.user) {
+        const user = data.user;
         setState(prev => ({
           ...prev,
           user,
@@ -164,13 +167,8 @@ export function useAuth(): UseAuthReturn {
       }
     } catch (error) {
       console.error('認証確認エラー:', error);
-      // エラーの場合もローカル状態をクリア
-      setState({
-        user: null,
-        isAuthenticated: false,
-        loading: false,
-      });
-      clearAuthState();
+      // エラーの場合、ローカル状態を維持（ネットワークエラーの可能性）
+      setState(prev => ({ ...prev, loading: false }));
     }
   }, [restoreAuthState, saveAuthState, clearAuthState]);
 

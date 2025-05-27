@@ -214,12 +214,14 @@ export function extractTokenFromCookie(cookieHeader: string | null): string | nu
   return sessionCookie.split('=')[1];
 }
 
-// セキュアなCookie設定
-export function createSecureCookie(name: string, value: string, maxAge: number = 86400): string {
-  return `${name}=${value}; HttpOnly; Secure; SameSite=Strict; Max-Age=${maxAge}; Path=/`;
+// セキュアなCookie設定（開発環境対応）
+export function createSecureCookie(name: string, value: string, maxAge: number = 86400, isSecure: boolean = false): string {
+  const secureFlag = isSecure ? '; Secure' : '';
+  return `${name}=${value}; HttpOnly${secureFlag}; SameSite=Lax; Max-Age=${maxAge}; Path=/`;
 }
 
-// Cookieクリア
-export function clearCookie(name: string): string {
-  return `${name}=; HttpOnly; Secure; SameSite=Strict; Max-Age=0; Path=/`;
+// Cookieクリア（開発環境対応）
+export function clearCookie(name: string, isSecure: boolean = false): string {
+  const secureFlag = isSecure ? '; Secure' : '';
+  return `${name}=; HttpOnly${secureFlag}; SameSite=Lax; Max-Age=0; Path=/`;
 } 

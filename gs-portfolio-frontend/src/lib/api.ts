@@ -96,11 +96,41 @@ class ApiClient {
 
   // ファイルアップロード用
   async uploadFile<T>(endpoint: string, formData: FormData): Promise<T> {
-    return this.request<T>(endpoint, {
+    const url = `${this.baseURL}${endpoint}`;
+    
+    const config: RequestInit = {
       method: 'POST',
       body: formData,
-      headers: {}, // Content-Typeを自動設定させるため空にする
-    });
+      credentials: 'include', // セッションCookie用
+      // Content-Typeヘッダーは設定しない（FormDataの場合、ブラウザが自動設定）
+    };
+
+    try {
+      const response = await fetch(url, config);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new ApiError(
+          'API_ERROR',
+          errorData.error || 'APIエラーが発生しました',
+          response.status
+        );
+      }
+
+      const data = await response.json();
+      // ファイルアップロードの場合は、レスポンス全体を返す
+      return data as T;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      
+      // ネットワークエラーなど
+      throw new ApiError(
+        'NETWORK_ERROR',
+        'ネットワークエラーが発生しました。接続を確認してください。'
+      );
+    }
   }
 }
 
