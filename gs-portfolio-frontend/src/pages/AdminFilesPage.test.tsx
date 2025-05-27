@@ -82,8 +82,11 @@ describe('AdminFilesPage', () => {
 
     renderWithRouter(<AdminFilesPage />);
     
-    expect(screen.getByText('ファイル管理')).toBeInTheDocument();
-    expect(screen.getByText('新規アップロード')).toBeInTheDocument();
+    // ローディング完了後にタイトルとボタンが表示される
+    await waitFor(() => {
+      expect(screen.getByText('ファイル管理')).toBeInTheDocument();
+      expect(screen.getByText('新規アップロード')).toBeInTheDocument();
+    });
     
     await waitFor(() => {
       expect(screen.getByText('テストファイル1')).toBeInTheDocument();

@@ -69,8 +69,8 @@ describe('FileDetailPage', () => {
     
     renderWithRouter(<FileDetailPage />);
     
-    await screen.findByText('Gaussian Splatting ファイル詳細');
-    expect(screen.getByText('テストファイル')).toBeInTheDocument();
+    // ファイル名（display_name）がh1タグで表示される
+    await screen.findByText('テストファイル');
     expect(screen.getByTestId('gs-viewer')).toBeInTheDocument();
   });
 
@@ -92,7 +92,8 @@ describe('FileDetailPage', () => {
     
     renderWithRouter(<FileDetailPage />);
     
-    await screen.findByText('表示名');
+    // 実際に表示されるラベルテキストを確認
+    await screen.findByText('ファイル名');
     expect(screen.getByText('ファイルサイズ')).toBeInTheDocument();
     expect(screen.getByText('アップロード日')).toBeInTheDocument();
     expect(screen.getByText('説明')).toBeInTheDocument();

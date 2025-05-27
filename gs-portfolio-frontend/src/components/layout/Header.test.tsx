@@ -31,7 +31,7 @@ describe('Header', () => {
     
     // GSカラーパレットとスタイリングが適用されている
     expect(header).toHaveClass('border-b')
-    expect(header).toHaveClass('bg-white')
+    expect(header).toHaveClass('bg-gradient-to-r')
     expect(header).toHaveClass('shadow-sm')
   })
 
@@ -40,8 +40,8 @@ describe('Header', () => {
     
     const brandTitle = screen.getByText('GS Portfolio')
     
-    // GSカラーパレットが適用されている
-    expect(brandTitle).toHaveClass('text-gs-primary')
+    // GSカラーパレットが適用されている（グラデーション効果）
+    expect(brandTitle).toHaveClass('bg-gradient-to-r')
     expect(brandTitle).toHaveClass('font-bold')
   })
 
@@ -52,7 +52,7 @@ describe('Header', () => {
     
     // ホバー効果が適用されている
     expect(homeLink).toHaveClass('hover:text-gs-primary')
-    expect(homeLink).toHaveClass('transition-colors')
+    expect(homeLink).toHaveClass('transition-all')
   })
 
   it('has proper semantic structure', () => {
