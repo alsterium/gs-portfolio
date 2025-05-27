@@ -11,6 +11,10 @@ interface GSFileCardProps {
 
 export function GSFileCard({ file, className }: GSFileCardProps) {
   const formatFileSize = (bytes: number): string => {
+    if (typeof bytes !== 'number' || bytes < 0) {
+      return '0 B';
+    }
+    
     const units = ['B', 'KB', 'MB', 'GB'];
     let size = bytes;
     let unitIndex = 0;

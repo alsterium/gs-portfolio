@@ -43,6 +43,9 @@ export function GSViewer({ fileUrl, className = '' }: GSViewerProps) {
       <div className="mt-4 text-center text-sm text-gray-600">
         <p>PlayCanvas Engineを使用したGaussian Splattingビューアー</p>
         <p className="mt-1">ファイル: {fileUrl}</p>
+        <div className="mt-2 text-xs text-gray-500">
+          <p>操作方法: 左クリック+ドラッグで回転 | 右クリック+ドラッグでパン | ホイールでズーム</p>
+        </div>
       </div>
     </div>
   );

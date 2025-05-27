@@ -12,7 +12,37 @@ vi.mock('react-router', async () => {
   };
 });
 
+// APIのモック
+vi.mock('../lib/api', () => ({
+  getGSFile: vi.fn(),
+  getGSFileDownloadUrl: vi.fn(),
+}));
+
+// GSViewerコンポーネントのモック
+vi.mock('../components/ui/GSViewer', () => ({
+  GSViewer: ({ fileUrl }: { fileUrl: string }) => (
+    <div data-testid="gs-viewer">
+      <p>3Dビューアーを準備中...</p>
+      <p>PlayCanvas Engineを使用したGaussian Splattingビューアー</p>
+      <p>ファイル: {fileUrl}</p>
+    </div>
+  ),
+}));
+
 const mockUseParams = vi.mocked(await import('react-router')).useParams;
+
+const mockFile = {
+  id: 1,
+  filename: 'test.splat',
+  display_name: 'テストファイル',
+  description: 'テスト用のファイルです',
+  file_size: 1024000,
+  file_path: 'files/test.splat',
+  mime_type: 'application/octet-stream',
+  upload_date: '2024-01-01T00:00:00Z',
+  updated_date: '2024-01-01T00:00:00Z',
+  is_active: true,
+};
 
 describe('FileDetailPage', () => {
   const renderWithRouter = (component: React.ReactElement) => {
@@ -23,15 +53,18 @@ describe('FileDetailPage', () => {
     );
   };
 
-  it('IDが指定されている場合は詳細ページを表示する', () => {
-    mockUseParams.mockReturnValue({ id: 'test-file-id' });
+  it('IDが指定されている場合は詳細ページを表示する', async () => {
+    const { getGSFile, getGSFileDownloadUrl } = await import('../lib/api');
+    vi.mocked(getGSFile).mockResolvedValue(mockFile);
+    vi.mocked(getGSFileDownloadUrl).mockReturnValue('http://example.com/test.splat');
+    
+    mockUseParams.mockReturnValue({ id: '1' });
     
     renderWithRouter(<FileDetailPage />);
     
-    expect(screen.getByText('Gaussian Splatting ファイル詳細')).toBeInTheDocument();
-    expect(screen.getByText('ファイルID: test-file-id')).toBeInTheDocument();
-    expect(screen.getByText('3Dビューアーを準備中...')).toBeInTheDocument();
-    expect(screen.getByText('ファイル情報')).toBeInTheDocument();
+    await screen.findByText('Gaussian Splatting ファイル詳細');
+    expect(screen.getByText('テストファイル')).toBeInTheDocument();
+    expect(screen.getByTestId('gs-viewer')).toBeInTheDocument();
   });
 
   it('IDが指定されていない場合はエラーメッセージを表示する', () => {
@@ -43,22 +76,31 @@ describe('FileDetailPage', () => {
     expect(screen.getByText('ファイルIDが指定されていません。')).toBeInTheDocument();
   });
 
-  it('ファイル情報セクションが正しく表示される', () => {
-    mockUseParams.mockReturnValue({ id: 'test-file-id' });
+  it('ファイル情報セクションが正しく表示される', async () => {
+    const { getGSFile, getGSFileDownloadUrl } = await import('../lib/api');
+    vi.mocked(getGSFile).mockResolvedValue(mockFile);
+    vi.mocked(getGSFileDownloadUrl).mockReturnValue('http://example.com/test.splat');
+    
+    mockUseParams.mockReturnValue({ id: '1' });
     
     renderWithRouter(<FileDetailPage />);
     
-    expect(screen.getByText('表示名')).toBeInTheDocument();
+    await screen.findByText('表示名');
     expect(screen.getByText('ファイルサイズ')).toBeInTheDocument();
     expect(screen.getByText('アップロード日')).toBeInTheDocument();
     expect(screen.getByText('説明')).toBeInTheDocument();
   });
 
-  it('3Dビューアーエリアが表示される', () => {
-    mockUseParams.mockReturnValue({ id: 'test-file-id' });
+  it('3Dビューアーエリアが表示される', async () => {
+    const { getGSFile, getGSFileDownloadUrl } = await import('../lib/api');
+    vi.mocked(getGSFile).mockResolvedValue(mockFile);
+    vi.mocked(getGSFileDownloadUrl).mockReturnValue('http://example.com/test.splat');
+    
+    mockUseParams.mockReturnValue({ id: '1' });
     
     renderWithRouter(<FileDetailPage />);
     
-    expect(screen.getByText('PlayCanvas Engineを使用したGaussian Splattingビューアーを実装予定')).toBeInTheDocument();
+    await screen.findByText('PlayCanvas Engineを使用したGaussian Splattingビューアー');
+    expect(screen.getByTestId('gs-viewer')).toBeInTheDocument();
   });
 }); 

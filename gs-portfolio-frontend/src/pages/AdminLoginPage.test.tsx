@@ -13,9 +13,17 @@ vi.mock('react-router', async () => {
   };
 });
 
-// APIクライアントのモック
-vi.mock('../lib/api', () => ({
-  adminLogin: vi.fn(),
+// useAuthフックのモック
+const mockLogin = vi.fn();
+const mockIsAuthenticated = vi.fn();
+const mockLoading = vi.fn();
+
+vi.mock('../lib/hooks/useAuth', () => ({
+  useAuth: () => ({
+    login: mockLogin,
+    isAuthenticated: mockIsAuthenticated(),
+    loading: mockLoading(),
+  }),
 }));
 
 const renderWithRouter = (component: React.ReactElement) => {
@@ -29,6 +37,8 @@ const renderWithRouter = (component: React.ReactElement) => {
 describe('AdminLoginPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockIsAuthenticated.mockReturnValue(false);
+    mockLoading.mockReturnValue(false);
   });
 
   it('ログインフォームが正しく表示される', () => {
@@ -66,8 +76,7 @@ describe('AdminLoginPage', () => {
   });
 
   it('正常なログイン時にダッシュボードにリダイレクトされる', async () => {
-    const { adminLogin } = await import('../lib/api');
-    vi.mocked(adminLogin).mockResolvedValue({ success: true, token: 'test-token' });
+    mockLogin.mockResolvedValue({ success: true });
     
     renderWithRouter(<AdminLoginPage />);
     
@@ -80,14 +89,16 @@ describe('AdminLoginPage', () => {
     fireEvent.click(submitButton);
     
     await waitFor(() => {
-      expect(adminLogin).toHaveBeenCalledWith('admin', 'password123');
+      expect(mockLogin).toHaveBeenCalledWith({
+        username: 'admin',
+        password: 'password123',
+      });
       expect(mockNavigate).toHaveBeenCalledWith('/admin/dashboard');
     });
   });
 
   it('ログイン失敗時にエラーメッセージが表示される', async () => {
-    const { adminLogin } = await import('../lib/api');
-    vi.mocked(adminLogin).mockRejectedValue(new Error('認証に失敗しました'));
+    mockLogin.mockResolvedValue({ success: false, error: 'ネットワークエラーが発生しました' });
     
     renderWithRouter(<AdminLoginPage />);
     
@@ -100,7 +111,7 @@ describe('AdminLoginPage', () => {
     fireEvent.click(submitButton);
     
     await waitFor(() => {
-      expect(screen.getByText('認証に失敗しました')).toBeInTheDocument();
+      expect(screen.getByText('ネットワークエラーが発生しました')).toBeInTheDocument();
     });
   });
 }); 

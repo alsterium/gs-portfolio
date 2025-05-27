@@ -1,27 +1,36 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { BrowserRouter } from 'react-router';
 import { GSFileGrid } from './GSFileGrid';
 import type { GSFile } from '@/types';
 
+// gsFilesモジュールのモック
+vi.mock('@/lib/gsFiles', () => ({
+  getGSFileThumbnailUrl: vi.fn((id: number) => `/api/gs-files/${id}/thumbnail`),
+}));
+
 const mockFiles: GSFile[] = [
   {
-    id: 'file-1',
-    displayName: 'テストファイル1',
-    originalName: 'test1.splat',
-    fileSize: 1048576,
-    filePath: '/files/test1.splat',
-    uploadDate: '2024-01-15T10:30:00Z',
-    updatedDate: '2024-01-15T10:30:00Z',
+    id: 1,
+    filename: 'test1.splat',
+    display_name: 'テストファイル1',
+    file_size: 1048576,
+    file_path: '/files/test1.splat',
+    mime_type: 'application/octet-stream',
+    upload_date: '2024-01-15T10:30:00Z',
+    updated_date: '2024-01-15T10:30:00Z',
+    is_active: true,
   },
   {
-    id: 'file-2',
-    displayName: 'テストファイル2',
-    originalName: 'test2.splat',
-    fileSize: 2097152,
-    filePath: '/files/test2.splat',
-    uploadDate: '2024-01-16T10:30:00Z',
-    updatedDate: '2024-01-16T10:30:00Z',
+    id: 2,
+    filename: 'test2.splat',
+    display_name: 'テストファイル2',
+    file_size: 2097152,
+    file_path: '/files/test2.splat',
+    mime_type: 'application/octet-stream',
+    upload_date: '2024-01-16T10:30:00Z',
+    updated_date: '2024-01-16T10:30:00Z',
+    is_active: true,
   },
 ];
 

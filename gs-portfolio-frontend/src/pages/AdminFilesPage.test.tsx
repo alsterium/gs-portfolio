@@ -19,6 +19,14 @@ vi.mock('../lib/api', () => ({
   deleteGSFile: vi.fn(),
 }));
 
+// useAuthフックのモック
+vi.mock('../lib/hooks/useAuth', () => ({
+  useAuth: () => ({
+    isAuthenticated: true,
+    loading: false,
+  }),
+}));
+
 // window.confirmのモック
 Object.defineProperty(window, 'confirm', {
   writable: true,

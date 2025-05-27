@@ -1,26 +1,33 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { BrowserRouter } from 'react-router';
 import { GSFileCard } from './GSFileCard';
 import type { GSFile } from '@/types';
 
+// gsFilesモジュールのモック
+vi.mock('@/lib/gsFiles', () => ({
+  getGSFileThumbnailUrl: vi.fn((id: number) => `/api/gs-files/${id}/thumbnail`),
+}));
+
 const mockFile: GSFile = {
-  id: 'test-file-1',
-  displayName: 'テストファイル',
-  originalName: 'test.splat',
-  fileSize: 1048576, // 1MB
-  filePath: '/files/test.splat',
-  thumbnailPath: '/thumbnails/test.jpg',
-  uploadDate: '2024-01-15T10:30:00Z',
-  updatedDate: '2024-01-15T10:30:00Z',
+  id: 1,
+  filename: 'test.splat',
+  display_name: 'テストファイル',
+  file_size: 1048576, // 1MB
+  file_path: '/files/test.splat',
+  thumbnail_path: '/thumbnails/test.jpg',
+  mime_type: 'application/octet-stream',
+  upload_date: '2024-01-15T10:30:00Z',
+  updated_date: '2024-01-15T10:30:00Z',
+  is_active: true,
   description: 'これはテスト用のGaussian Splattingファイルです。',
 };
 
 const mockFileWithoutThumbnail: GSFile = {
   ...mockFile,
-  id: 'test-file-2',
-  displayName: 'サムネイルなしファイル',
-  thumbnailPath: undefined,
+  id: 2,
+  display_name: 'サムネイルなしファイル',
+  thumbnail_path: undefined,
   description: undefined,
 };
 
@@ -47,7 +54,7 @@ describe('GSFileCard', () => {
     
     const thumbnail = screen.getByAltText('テストファイルのサムネイル');
     expect(thumbnail).toBeInTheDocument();
-    expect(thumbnail).toHaveAttribute('src', '/thumbnails/test.jpg');
+    expect(thumbnail).toHaveAttribute('src', '/api/gs-files/1/thumbnail');
   });
 
   it('サムネイルがない場合はBoxアイコンを表示する', () => {
@@ -69,13 +76,13 @@ describe('GSFileCard', () => {
     renderWithRouter(<GSFileCard file={mockFile} />);
     
     const link = screen.getByRole('link');
-    expect(link).toHaveAttribute('href', '/view/test-file-1');
+    expect(link).toHaveAttribute('href', '/view/1');
   });
 
   it('ファイルサイズが正しくフォーマットされる', () => {
     const largeFile: GSFile = {
       ...mockFile,
-      fileSize: 1073741824, // 1GB
+      file_size: 1073741824, // 1GB
     };
     
     renderWithRouter(<GSFileCard file={largeFile} />);

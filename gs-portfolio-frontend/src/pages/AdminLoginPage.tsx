@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import { adminLogin } from '../lib/api';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,12 +20,22 @@ interface FormErrors {
 
 export function AdminLoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login, isAuthenticated, loading } = useAuth();
   const [formData, setFormData] = useState<FormData>({
     username: '',
     password: '',
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  // 既にログイン済みの場合はダッシュボードにリダイレクト
+  useEffect(() => {
+    if (isAuthenticated && !loading) {
+      const from = (location.state as any)?.from || '/admin/dashboard';
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, loading, navigate, location.state]);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -53,8 +63,19 @@ export function AdminLoginPage() {
     setErrors({});
 
     try {
-      await adminLogin(formData.username, formData.password);
-      navigate('/admin/dashboard');
+      const result = await login({
+        username: formData.username,
+        password: formData.password,
+      });
+
+      if (result.success) {
+        const from = (location.state as any)?.from || '/admin/dashboard';
+        navigate(from, { replace: true });
+      } else {
+        setErrors({
+          general: result.error || '認証に失敗しました',
+        });
+      }
     } catch (error) {
       setErrors({
         general: error instanceof Error ? error.message : '認証に失敗しました',

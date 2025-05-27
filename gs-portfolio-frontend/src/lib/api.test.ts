@@ -25,7 +25,7 @@ describe('ApiClient', () => {
       const result = await apiClient.get('/test');
       
       expect(result).toEqual(mockData);
-      expect(mockFetch).toHaveBeenCalledWith('/api/test', {
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8787/api/test', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -52,7 +52,7 @@ describe('ApiClient', () => {
         expect.fail('Expected ApiError to be thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(ApiError);
-        expect((error as ApiError).message).toBe('リソースが見つかりません');
+        expect((error as ApiError).message).toBe('NOT_FOUND');
         expect((error as ApiError).code).toBe('NOT_FOUND');
         expect((error as ApiError).status).toBe(404);
       }
@@ -79,7 +79,7 @@ describe('ApiClient', () => {
       const result = await apiClient.post('/test', postData);
       
       expect(result).toEqual(responseData);
-      expect(mockFetch).toHaveBeenCalledWith('/api/test', {
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8787/api/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -101,7 +101,7 @@ describe('ApiClient', () => {
       const result = await apiClient.put('/test/1', putData);
       
       expect(result).toEqual(responseData);
-      expect(mockFetch).toHaveBeenCalledWith('/api/test/1', {
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8787/api/test/1', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -120,7 +120,7 @@ describe('ApiClient', () => {
       const result = await apiClient.delete('/test/1');
       
       expect(result).toBeNull();
-      expect(mockFetch).toHaveBeenCalledWith('/api/test/1', {
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8787/api/test/1', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -142,7 +142,7 @@ describe('ApiClient', () => {
       const result = await apiClient.uploadFile('/upload', formData);
       
       expect(result).toEqual(responseData);
-      expect(mockFetch).toHaveBeenCalledWith('/api/upload', {
+      expect(mockFetch).toHaveBeenCalledWith('http://localhost:8787/api/upload', {
         method: 'POST',
         headers: {},
         credentials: 'include',

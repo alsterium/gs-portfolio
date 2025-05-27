@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { FileUploadForm } from '@/components/ui/FileUploadForm';
+import { Plus, Upload } from 'lucide-react';
 import type { GSFile, PaginatedResponse } from '@/types';
 
 export function AdminFilesPage() {
@@ -13,6 +15,7 @@ export function AdminFilesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [showUploadForm, setShowUploadForm] = useState(false);
 
   const loadFiles = async () => {
     try {
@@ -41,6 +44,15 @@ export function AdminFilesPage() {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const handleUploadSuccess = () => {
+    setShowUploadForm(false);
+    loadFiles(); // ファイル一覧を再読み込み
+  };
+
+  const handleUploadError = (errorMessage: string) => {
+    setError(errorMessage);
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -84,7 +96,10 @@ export function AdminFilesPage() {
             >
               ダッシュボードに戻る
             </Link>
-            <Button>新規アップロード</Button>
+            <Button onClick={() => setShowUploadForm(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              新規アップロード
+            </Button>
           </div>
         </div>
 
@@ -94,11 +109,35 @@ export function AdminFilesPage() {
           </Alert>
         )}
 
+        {showUploadForm && (
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">ファイルアップロード</h2>
+              <Button
+                variant="outline"
+                onClick={() => setShowUploadForm(false)}
+              >
+                キャンセル
+              </Button>
+            </div>
+            <FileUploadForm
+              onSuccess={handleUploadSuccess}
+              onError={handleUploadError}
+            />
+          </div>
+        )}
+
         {files.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <p className="text-gray-500">アップロードされたファイルがありません</p>
-              <Button className="mt-4">最初のファイルをアップロード</Button>
+              <Button 
+                className="mt-4"
+                onClick={() => setShowUploadForm(true)}
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                最初のファイルをアップロード
+              </Button>
             </CardContent>
           </Card>
         ) : (
