@@ -1,39 +1,68 @@
-import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
-import { HomePage } from './HomePage'
+import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { BrowserRouter } from 'react-router';
+import { HomePage } from './HomePage';
 
 describe('HomePage', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const renderWithRouter = (component: React.ReactElement) => {
+    return render(
+      <BrowserRouter>
+        {component}
+      </BrowserRouter>
+    );
+  };
+
   it('renders page title', () => {
-    render(<HomePage />)
+    renderWithRouter(<HomePage />);
     
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Gaussian Splatting Portfolio')
-  })
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Gaussian Splatting Portfolio');
+  });
 
   it('renders page description', () => {
-    render(<HomePage />)
+    renderWithRouter(<HomePage />);
     
-    expect(screen.getByText(/3Dモデルのコレクション/)).toBeInTheDocument()
-  })
+    expect(screen.getByText(/3Dモデルのコレクション/)).toBeInTheDocument();
+  });
 
   it('has proper page structure', () => {
-    render(<HomePage />)
+    renderWithRouter(<HomePage />);
     
     // ページコンテナが存在することを確認
-    const container = screen.getByRole('heading', { level: 1 }).closest('div')?.parentElement
-    expect(container).toHaveClass('container', 'mx-auto', 'px-4', 'py-8')
-  })
+    const container = screen.getByRole('heading', { level: 1 }).closest('div')?.parentElement;
+    expect(container).toHaveClass('container', 'mx-auto', 'px-4', 'py-8');
+  });
 
-  it('renders GSFileGrid component placeholder', () => {
-    render(<HomePage />)
+  it('shows loading state initially', () => {
+    renderWithRouter(<HomePage />);
     
-    // GSFileGridコンポーネントのプレースホルダーが表示されることを確認
-    expect(screen.getByText('GSファイル一覧がここに表示されます')).toBeInTheDocument()
-  })
+    // 初期状態でローディングが表示されることを確認
+    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(screen.getByText('ファイルを読み込み中...')).toBeInTheDocument();
+  });
+
+  it('renders GSFileGrid component', () => {
+    renderWithRouter(<HomePage />);
+    
+    // 初期状態でローディングが表示されることを確認
+    expect(screen.getByText('ファイルを読み込み中...')).toBeInTheDocument();
+    
+    // GSFileGridコンポーネントが使用されていることを確認
+    // （ローディング状態はGSFileGridから来ている）
+    expect(screen.getByRole('status')).toBeInTheDocument();
+  });
 
   it('has responsive layout', () => {
-    render(<HomePage />)
+    renderWithRouter(<HomePage />);
     
-    const title = screen.getByRole('heading', { level: 1 })
-    expect(title).toHaveClass('text-3xl', 'font-bold', 'text-center', 'mb-4')
-  })
-}) 
+    const title = screen.getByRole('heading', { level: 1 });
+    expect(title).toHaveClass('text-3xl', 'font-bold', 'text-center', 'mb-4');
+  });
+}); 

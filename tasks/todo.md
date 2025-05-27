@@ -6,7 +6,7 @@
 - [x] React Router v7 セットアップ  
 - [x] shadcn/ui インストール・設定
 - [x] Tailwind CSS 設定
-- [ ] ESLint/Prettier 設定
+- [x] ESLint/Prettier 設定
 - [x] Vitest + Testing Library テスト環境構築
 - [ ] 初回セットアップ画面の設計・実装
 
@@ -54,33 +54,33 @@
   - [x] `Layout` - 基本レイアウト
   - [x] `Header` - ヘッダー
   - [x] `Footer` - フッター
-- [ ] 共通コンポーネント
-  - [ ] `LoadingSpinner` - ローディング表示
-  - [ ] `ErrorBoundary` - エラーハンドリング
-  - [ ] `ErrorMessage` - エラーメッセージ表示
+- [x] 共通コンポーネント
+  - [x] `LoadingSpinner` - ローディング表示
+  - [x] `ErrorBoundary` - エラーハンドリング
+  - [x] `ErrorMessage` - エラーメッセージ表示
 
 ### 3.2 ルーティング設定
-- [ ] React Router v7 設定
-- [ ] ページコンポーネント骨格作成
+- [x] React Router v7 設定
+- [x] ページコンポーネント骨格作成
   - [x] `/` - ホームページ
-  - [ ] `/view/:id` - ファイル詳細ページ
+  - [x] `/view/:id` - ファイル詳細ページ
   - [ ] `/admin` - 管理者ログイン
   - [ ] `/admin/dashboard` - 管理ダッシュボード
   - [ ] `/admin/files` - ファイル管理
 
 ### 3.3 API連携基盤
-- [ ] APIクライアント作成
-- [ ] 型定義作成
+- [x] APIクライアント作成
+- [x] 型定義作成
 - [ ] React Queryセットアップ（データフェッチング）
-- [ ] エラーハンドリング機能
+- [x] エラーハンドリング機能
 
 ## フェーズ4: ユーザー向け機能
 ### 4.1 GSファイル一覧ページ
-- [ ] `GSFileGrid` コンポーネント
-- [ ] `GSFileCard` コンポーネント
-- [ ] 一覧データフェッチング
-- [ ] レスポンシブデザイン対応
-- [ ] ローディング・エラー状態
+- [x] `GSFileGrid` コンポーネント
+- [x] `GSFileCard` コンポーネント
+- [x] 一覧データフェッチング（モックデータ）
+- [x] レスポンシブデザイン対応
+- [x] ローディング・エラー状態
 
 ### 4.2 GSファイル詳細ページ
 - [ ] PlayCanvas Engine セットアップ
@@ -166,8 +166,8 @@
 
 ## フェーズ8: テスト・品質保証
 ### 8.1 テスト実装
-- [ ] コンポーネントテスト（Vitest + Testing Library）
-- [ ] APIテスト
+- [x] コンポーネントテスト（Vitest + Testing Library）
+- [x] APIテスト
 - [ ] ユーティリティ関数テスト
 - [ ] 統合テスト
 - [ ] 認証フローテスト
