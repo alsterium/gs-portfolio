@@ -42,31 +42,33 @@ const mockEntity = {
   aabb: null,
 };
 
-const mockMouse = vi.fn();
-const mockTouchDevice = vi.fn();
-const mockKeyboard = vi.fn();
-const mockColor = vi.fn();
-const mockVec3 = vi.fn(() => ({
-  x: 0,
-  y: 0,
-  z: 0,
-  sub: vi.fn().mockReturnThis(),
-  add: vi.fn().mockReturnThis(),
-}));
+vi.mock('playcanvas', () => {
+  const mockMouse = vi.fn();
+  const mockTouchDevice = vi.fn();
+  const mockKeyboard = vi.fn();
+  const mockColor = vi.fn();
+  const mockVec3 = vi.fn(() => ({
+    x: 0,
+    y: 0,
+    z: 0,
+    sub: vi.fn().mockReturnThis(),
+    add: vi.fn().mockReturnThis(),
+  }));
 
-vi.mock('playcanvas', () => ({
-  Application: vi.fn(() => mockApplication),
-  Entity: vi.fn(() => mockEntity),
-  Mouse: mockMouse,
-  TouchDevice: mockTouchDevice,
-  Keyboard: mockKeyboard,
-  Color: mockColor,
-  Vec3: mockVec3,
-  FILLMODE_FILL_WINDOW: 'FILLMODE_FILL_WINDOW',
-  RESOLUTION_AUTO: 'RESOLUTION_AUTO',
-  LIGHTTYPE_DIRECTIONAL: 'LIGHTTYPE_DIRECTIONAL',
-  LIGHTTYPE_POINT: 'LIGHTTYPE_POINT',
-}));
+  return {
+    Application: vi.fn(() => mockApplication),
+    Entity: vi.fn(() => mockEntity),
+    Mouse: mockMouse,
+    TouchDevice: mockTouchDevice,
+    Keyboard: mockKeyboard,
+    Color: mockColor,
+    Vec3: mockVec3,
+    FILLMODE_FILL_WINDOW: 'FILLMODE_FILL_WINDOW',
+    RESOLUTION_AUTO: 'RESOLUTION_AUTO',
+    LIGHTTYPE_DIRECTIONAL: 'LIGHTTYPE_DIRECTIONAL',
+    LIGHTTYPE_POINT: 'LIGHTTYPE_POINT',
+  };
+});
 
 describe('useSplat', () => {
   let mockCanvas: HTMLCanvasElement;

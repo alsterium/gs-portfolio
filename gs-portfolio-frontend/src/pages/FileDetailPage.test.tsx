@@ -14,6 +14,13 @@ vi.mock('react-router', async () => {
 
 // APIのモック
 vi.mock('../lib/api', () => ({
+  apiClient: {
+    get: vi.fn(),
+  },
+}));
+
+// gsFilesモジュールのモック
+vi.mock('../lib/gsFiles', () => ({
   getGSFile: vi.fn(),
   getGSFileDownloadUrl: vi.fn(),
 }));
@@ -54,7 +61,7 @@ describe('FileDetailPage', () => {
   };
 
   it('IDが指定されている場合は詳細ページを表示する', async () => {
-    const { getGSFile, getGSFileDownloadUrl } = await import('../lib/api');
+    const { getGSFile, getGSFileDownloadUrl } = await import('../lib/gsFiles');
     vi.mocked(getGSFile).mockResolvedValue(mockFile);
     vi.mocked(getGSFileDownloadUrl).mockReturnValue('http://example.com/test.splat');
     
@@ -77,7 +84,7 @@ describe('FileDetailPage', () => {
   });
 
   it('ファイル情報セクションが正しく表示される', async () => {
-    const { getGSFile, getGSFileDownloadUrl } = await import('../lib/api');
+    const { getGSFile, getGSFileDownloadUrl } = await import('../lib/gsFiles');
     vi.mocked(getGSFile).mockResolvedValue(mockFile);
     vi.mocked(getGSFileDownloadUrl).mockReturnValue('http://example.com/test.splat');
     
@@ -92,7 +99,7 @@ describe('FileDetailPage', () => {
   });
 
   it('3Dビューアーエリアが表示される', async () => {
-    const { getGSFile, getGSFileDownloadUrl } = await import('../lib/api');
+    const { getGSFile, getGSFileDownloadUrl } = await import('../lib/gsFiles');
     vi.mocked(getGSFile).mockResolvedValue(mockFile);
     vi.mocked(getGSFileDownloadUrl).mockReturnValue('http://example.com/test.splat');
     

@@ -134,5 +134,15 @@ export async function deleteGSFile(id: number): Promise<void> {
   return apiClient.delete<void>(`/admin/gs-files/${id}`);
 }
 
+// 管理者用ファイル更新
+export interface UpdateGSFileRequest {
+  display_name?: string;
+  description?: string;
+}
+
+export async function updateGSFile(id: number, data: UpdateGSFileRequest): Promise<void> {
+  return apiClient.put<void>(`/admin/gs-files/${id}`, data);
+}
+
 // GSファイル関連のre-export
 export { getGSFiles, getGSFile, getGSFileDownloadUrl, getGSFileThumbnailUrl } from './gsFiles'; 

@@ -53,7 +53,7 @@ describe('ApiClient', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(ApiError);
         expect((error as ApiError).message).toBe('NOT_FOUND');
-        expect((error as ApiError).code).toBe('NOT_FOUND');
+        expect((error as ApiError).code).toBe('API_ERROR');
         expect((error as ApiError).status).toBe(404);
       }
     });

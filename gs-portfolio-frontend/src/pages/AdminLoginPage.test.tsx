@@ -93,7 +93,7 @@ describe('AdminLoginPage', () => {
         username: 'admin',
         password: 'password123',
       });
-      expect(mockNavigate).toHaveBeenCalledWith('/admin/dashboard');
+      expect(mockNavigate).toHaveBeenCalledWith('/admin/dashboard', { replace: true });
     });
   });
 

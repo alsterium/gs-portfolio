@@ -18,13 +18,17 @@ interface FileUploadFormProps {
 interface UploadFile {
   file: File;
   preview?: string;
+  displayName?: string;
+  description?: string;
 }
 
 interface FormData {
   displayName: string;
   description: string;
   gsFile: UploadFile | null;
+  gsFiles: UploadFile[];
   thumbnail: UploadFile | null;
+  batchMode: boolean;
 }
 
 interface FormErrors {
@@ -39,7 +43,9 @@ export function FileUploadForm({ onSuccess, onError }: FileUploadFormProps) {
     displayName: '',
     description: '',
     gsFile: null,
+    gsFiles: [],
     thumbnail: null,
+    batchMode: false,
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isUploading, setIsUploading] = useState(false);
