@@ -44,4 +44,4 @@ CREATE INDEX IF NOT EXISTS idx_admin_sessions_expires ON admin_sessions(expires_
 
 -- 初期管理者ユーザー（パスワード: admin123）
 INSERT OR IGNORE INTO admin_users (username, password_hash, email) 
-VALUES ('admin', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin@example.com'); 
+VALUES ('admin', 'VsB5eHF+6d4jhhBk23dZjgPD1fQhk4PB3hlrrWMtEP8S8z8HavjtxdPHP4RLgYDw', 'admin@example.com'); 

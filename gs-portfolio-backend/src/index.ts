@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { Env } from './types';
 import { corsMiddleware, securityHeaders, errorHandler, requestLogger } from './middleware';
 import publicRoutes from './routes/public';
+import adminRoutes from './routes/admin';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -13,6 +14,7 @@ app.use('*', errorHandler);
 
 // ルート設定
 app.route('/api', publicRoutes);
+app.route('/api/admin', adminRoutes);
 
 // ヘルスチェック
 app.get('/health', (c) => {
