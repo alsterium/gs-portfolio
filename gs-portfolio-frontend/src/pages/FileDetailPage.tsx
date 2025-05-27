@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { GSViewer } from '@/components/ui/GSViewer';
 import { getGSFile } from '@/lib/gsFiles';
 import type { GSFile } from '@/types';
 
@@ -75,15 +76,10 @@ export function FileDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* 3Dビューアー */}
         <div className="lg:col-span-2">
-          <div className="bg-gray-100 rounded-lg aspect-video flex items-center justify-center">
-            <div className="text-center">
-              <LoadingSpinner size="lg" className="mx-auto mb-4" />
-              <p className="text-gray-600">3Dビューアーを準備中...</p>
-              <p className="text-sm text-gray-500 mt-2">
-                PlayCanvas Engineを使用したGaussian Splattingビューアーを実装予定
-              </p>
-            </div>
-          </div>
+          <GSViewer 
+            fileUrl={`/api/gs-files/${file.id}/file`}
+            className="w-full"
+          />
         </div>
 
         {/* ファイル情報 */}

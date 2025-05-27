@@ -105,4 +105,34 @@ class ApiClient {
 }
 
 // APIクライアントインスタンス
-export const apiClient = new ApiClient(API_BASE_URL); 
+export const apiClient = new ApiClient(API_BASE_URL);
+
+// 管理者認証関連API
+export interface AdminLoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface AdminLoginResponse {
+  success: boolean;
+  token: string;
+}
+
+export async function adminLogin(username: string, password: string): Promise<AdminLoginResponse> {
+  return apiClient.post<AdminLoginResponse>('/admin/login', {
+    username,
+    password,
+  });
+}
+
+export async function adminLogout(): Promise<void> {
+  return apiClient.post<void>('/admin/logout');
+}
+
+// 管理者用ファイル削除
+export async function deleteGSFile(id: number): Promise<void> {
+  return apiClient.delete<void>(`/admin/gs-files/${id}`);
+}
+
+// GSファイル関連のre-export
+export { getGSFiles, getGSFile, getGSFileDownloadUrl, getGSFileThumbnailUrl } from './gsFiles'; 

@@ -35,12 +35,12 @@
   - [x] `GET /api/gs-files/:id` - ファイル詳細
   - [x] `GET /api/gs-files/:id/file` - ファイル取得
   - [x] `GET /api/gs-files/:id/thumbnail` - サムネイル取得
-- [ ] 管理API実装
-  - [ ] `POST /api/admin/login` - ログイン
-  - [ ] `POST /api/admin/logout` - ログアウト
-  - [ ] `POST /api/admin/gs-files` - ファイルアップロード
-  - [ ] `PUT /api/admin/gs-files/:id` - ファイル更新
-  - [ ] `DELETE /api/admin/gs-files/:id` - ファイル削除
+- [x] 管理API実装
+  - [x] `POST /api/admin/login` - ログイン
+  - [x] `POST /api/admin/logout` - ログアウト
+  - [x] `POST /api/admin/gs-files` - ファイルアップロード
+  - [x] `PUT /api/admin/gs-files/:id` - ファイル更新
+  - [x] `DELETE /api/admin/gs-files/:id` - ファイル削除
 
 ### 2.3 ファイルストレージ連携
 - [x] R2 アップロード機能実装
@@ -64,9 +64,9 @@
 - [x] ページコンポーネント骨格作成
   - [x] `/` - ホームページ
   - [x] `/view/:id` - ファイル詳細ページ
-  - [ ] `/admin` - 管理者ログイン
-  - [ ] `/admin/dashboard` - 管理ダッシュボード
-  - [ ] `/admin/files` - ファイル管理
+  - [x] `/admin` - 管理者ログイン
+  - [x] `/admin/dashboard` - 管理ダッシュボード
+  - [x] `/admin/files` - ファイル管理
 
 ### 3.3 API連携基盤
 - [x] APIクライアント作成
@@ -83,35 +83,35 @@
 - [x] ローディング・エラー状態
 
 ### 4.2 GSファイル詳細ページ
-- [ ] PlayCanvas Engine セットアップ
-- [ ] `GSViewer` コンポーネント実装
-- [ ] 3Dモデル表示機能
+- [x] PlayCanvas Engine セットアップ
+- [x] `GSViewer` コンポーネント実装
+- [x] 3Dモデル表示機能（基本版）
 - [ ] コントロール（回転、ズーム、パン）
 - [x] ファイル情報表示
 - [x] ナビゲーション機能
 
 ### 4.3 @playcanvas/react統合
-- [ ] @playcanvas/react インストール
-- [ ] useSplat hook のテスト作成
-- [ ] GSViewer コンポーネントのテスト作成
-- [ ] Gaussian Splatting ローダー実装
+- [x] @playcanvas/react インストール
+- [x] useSplat hook のテスト作成
+- [x] GSViewer コンポーネントのテスト作成
+- [x] Gaussian Splatting ローダー実装（基本版）
 - [ ] カメラコントロールのテスト作成
 - [ ] カメラコントロール実装
-- [ ] エラーハンドリングのテスト作成
-- [ ] エラーハンドリング実装
+- [x] エラーハンドリングのテスト作成
+- [x] エラーハンドリング実装（基本版）
 
 ## フェーズ5: 管理機能
 ### 5.1 認証機能
-- [ ] ログインフォーム
+- [x] ログインフォーム
 - [ ] 認証状態管理
 - [ ] セッション管理
-- [ ] ログアウト機能
+- [x] ログアウト機能
 - [ ] 認証ガード
 
 ### 5.2 ファイル管理ページ
-- [ ] `AdminFileTable` コンポーネント
-- [ ] ファイル一覧表示
-- [ ] ファイル削除機能
+- [x] `AdminFilesPage` コンポーネント
+- [x] ファイル一覧表示
+- [x] ファイル削除機能
 - [ ] 表示名編集機能
 - [ ] ページネーション
 
