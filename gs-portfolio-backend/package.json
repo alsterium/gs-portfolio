@@ -3,7 +3,10 @@
 	"scripts": {
 		"dev": "wrangler dev",
 		"deploy": "wrangler deploy --minify",
-		"cf-typegen": "wrangler types --env-interface CloudflareBindings"
+		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
+		"db:init": "wrangler d1 execute gs-portfolio-db --local --file=./src/schema.sql",
+		"db:migrate": "wrangler d1 execute gs-portfolio-db --file=./src/schema.sql",
+		"db:reset": "wrangler d1 execute gs-portfolio-db --local --command=\"DROP TABLE IF EXISTS gs_files; DROP TABLE IF EXISTS admin_users; DROP TABLE IF EXISTS admin_sessions;\" && npm run db:init"
 	},
 	"dependencies": {
 		"@cloudflare/workers-types": "^4.20250525.0",
